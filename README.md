@@ -1,8 +1,6 @@
-## mbid_to_lidarr (bulk MBID resolve + Lidarr add)
+# mbid_to_lidarr (bulk MBID resolve + Lidarr add)
 
-A simple CLI workflow to:
-- Resolve MusicBrainz Artist IDs (MBIDs) from a plain list of artist names
-- Add/monitor those artists in Lidarr via its API
+**A simple CLI workflow to resolve MusicBrainz Artist IDs (MBIDs) from a plain list of artist names, then add and monitor those artists in Lidarr via its API**
 
 ### Features
 - One-command bulk run combining both steps
@@ -15,6 +13,8 @@ A simple CLI workflow to:
 - Python 3.9+
 - Lidarr up and reachable
 
+
+## Read Carefully from here!!
 ### Install (package)
 Install from source in editable mode (PEP 517):
 ```bash
@@ -31,23 +31,21 @@ Key vars:
 - `LIDARR_URL`: Base URL (e.g. http://localhost:8686)
 - `LIDARR_API_KEY`: Your Lidarr API key
 - `ROOT_FOLDER`: Root folder path configured in Lidarr
-- `MUSICBRAINZ_UA`: Your User-Agent string for MusicBrainz (include contact)
+
+Also, add an `artists.txt`. The current `artists.txt` is a list of my artists.
 
 ### Quickstart (one command)
-If installed as a package:
+After you have installed the package and added your `artists.txt`:
 ```bash
-mbid-to-lidarr --limit 5
+mbid-to-lidarr
 ```
-Or without install:
-```bash
-python lidarr_bulk.py --mb-ua "YourTool/1.0 (email@example.com)"
-```
+
 Defaults:
 - Reads `artists.txt`
 - Writes `output/mbids.txt`
 - Writes `output/lidarr_output.txt`
 
-### Detailed usage
+### Advanced usage
 - Bulk runner:
 ```bash
 python lidarr_bulk.py --help
@@ -106,6 +104,3 @@ python lidarr_add.py --input mbids.txt --use-default-profiles --monitor all --se
 ### Outputs
 - `output/mbids.txt`: Lines of `lidarr:<MBID>`
 - `output/lidarr_output.txt`: Tab-separated report with statuses and final summary
-
-### License
-MIT
