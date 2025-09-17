@@ -1,0 +1,4 @@
+[console_scripts]
+mbid-to-lidarr = mbid_to_lidarr.lidarr_bulk:main
+mbid-to-lidarr-add = mbid_to_lidarr.lidarr_add:main
+mbid-to-lidarr-mbids = mbid_to_lidarr.get_musicbrainz_ids:main

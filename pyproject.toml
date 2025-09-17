@@ -1,0 +1,37 @@
+[build-system]
+requires = ["setuptools>=61", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "mbid_to_lidarr"
+version = "0.1.0"
+description = "Bulk resolve MusicBrainz artist IDs and add to Lidarr"
+authors = [{ name = "Jeron" }]
+readme = "README.md"
+requires-python = ">=3.9"
+license = { text = "MIT" }
+keywords = ["lidarr", "musicbrainz", "mbid", "automation"]
+classifiers = [
+  "Programming Language :: Python :: 3",
+  "License :: OSI Approved :: MIT License",
+  "Operating System :: OS Independent",
+]
+dependencies = [
+  "requests>=2.31.0",
+  "python-dotenv>=1.0.1",
+]
+
+[project.urls]
+Homepage = "https://github.com/yourname/mbid_to_lidarr"
+
+[project.scripts]
+mbid-to-lidarr = "mbid_to_lidarr.lidarr_bulk:main"
+mbid-to-lidarr-mbids = "mbid_to_lidarr.get_musicbrainz_ids:main"
+mbid-to-lidarr-add = "mbid_to_lidarr.lidarr_add:main"
+
+[tool.setuptools]
+package-dir = {"" = "src"}
+
+[tool.setuptools.packages.find]
+where = ["src"]
+include = ["mbid_to_lidarr*"]

@@ -1,0 +1,12 @@
+README.md
+pyproject.toml
+src/mbid_to_lidarr/__init__.py
+src/mbid_to_lidarr/get_musicbrainz_ids.py
+src/mbid_to_lidarr/lidarr_add.py
+src/mbid_to_lidarr/lidarr_bulk.py
+src/mbid_to_lidarr.egg-info/PKG-INFO
+src/mbid_to_lidarr.egg-info/SOURCES.txt
+src/mbid_to_lidarr.egg-info/dependency_links.txt
+src/mbid_to_lidarr.egg-info/entry_points.txt
+src/mbid_to_lidarr.egg-info/requires.txt
+src/mbid_to_lidarr.egg-info/top_level.txt
