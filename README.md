@@ -34,6 +34,37 @@ Key vars:
 
 Also, add an `artists.txt`. The current `artists.txt` is a list of my artists.
 
+### Spotify exporter (optional)
+
+This repository includes a small helper script to export artists from a Spotify account into an `artists.txt` file that can be used by the rest of the tools.
+
+Prerequisites:
+- Create a Spotify developer application at https://developer.spotify.com/dashboard and copy the `Client ID` and `Client Secret`.
+- For local development you may use a redirect URI such as `https://localhost:8888/callback` (register this in the Spotify app settings).
+
+Environment variables required (add to `.env`):
+- `SPOTIFY_CLIENT_ID` — your Spotify app Client ID
+- `SPOTIFY_CLIENT_SECRET` — your Spotify app Client Secret
+- `SPOTIFY_REDIRECT_URI` — the redirect URI you registered (e.g. `https://localhost:8888/callback`)
+- `SPOTIFY_USERNAME` — Spotify username (used by spotipy)
+- `ARTISTS_FILE` — optional path to write the artist list (defaults to `artists.txt`)
+
+Install the extra dependency (already added to `requirements.txt`):
+```bash
+pip install -r requirements.txt
+```
+
+Run the exporter (from the repo root so the default `artists.txt` resolves as expected):
+```bash
+python -m src.mbid_to_lidarr.spotify_export --dryrun
+# or to write the file:
+python -m src.mbid_to_lidarr.spotify_export
+```
+
+Notes:
+- The exporter uses Spotipy and the Authorization Code flow; it will open a browser for you to authenticate and authorize the app.
+
+
 ### Quickstart (one command)
 After you have installed the package and added your `artists.txt`:
 ```bash
