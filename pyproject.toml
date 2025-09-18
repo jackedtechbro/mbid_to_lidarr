@@ -19,6 +19,7 @@ classifiers = [
 dependencies = [
   "requests>=2.31.0",
   "python-dotenv>=1.0.1",
+  "spotipy>=2.27.0",
 ]
 
 [project.urls]
@@ -28,6 +29,7 @@ Homepage = "https://github.com/yourname/mbid_to_lidarr"
 mbid-to-lidarr = "mbid_to_lidarr.lidarr_bulk:main"
 mbid-to-lidarr-mbids = "mbid_to_lidarr.get_musicbrainz_ids:main"
 mbid-to-lidarr-add = "mbid_to_lidarr.lidarr_add:main"
+mbid-to-lidarr-spotify-export = "mbid_to_lidarr.spotify_export:main"
 
 [tool.setuptools]
 package-dir = {"" = "src"}
