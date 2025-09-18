@@ -1,4 +1,3 @@
-
 import os
 import argparse
 from typing import Set, Any, Dict, Optional
@@ -19,27 +18,16 @@ def get_env_var(key: str) -> str:
 def get_repo_root() -> str:
     return os.path.abspath(os.path.join(os.path.dirname(__file__), '../../..'))
 
-# Load environment variables
-load_dotenv()
-
-SPOTIFY_CLIENT_ID: str = get_env_var('SPOTIFY_CLIENT_ID')
-SPOTIFY_CLIENT_SECRET: str = get_env_var('SPOTIFY_CLIENT_SECRET')
-SPOTIFY_REDIRECT_URI: str = get_env_var('SPOTIFY_REDIRECT_URI')
-SPOTIFY_USERNAME: str = get_env_var('SPOTIFY_USERNAME')
-ARTISTS_FILE: str = os.getenv('ARTISTS_FILE', 'artists.txt')
-
-parser: argparse.ArgumentParser = argparse.ArgumentParser(description="Export Spotify artists to a file.")
-parser.add_argument('--dryrun', action='store_true', help='Only count and print the number of artists and albums, do not write to file.')
-args: argparse.Namespace = parser.parse_args()
-
-scope: str = "user-library-read user-follow-read"
-sp: Any = spotipy.Spotify(auth_manager=SpotifyOAuth(
-    client_id=SPOTIFY_CLIENT_ID,
-    client_secret=SPOTIFY_CLIENT_SECRET,
-    redirect_uri=SPOTIFY_REDIRECT_URI,
-    scope=scope,
-    username=SPOTIFY_USERNAME
-))
+def build_client(include_saved_albums: bool) -> Any:
+    scope: str = "user-follow-read" + (" user-library-read" if include_saved_albums else "")
+    spotify_client: Any = spotipy.Spotify(auth_manager=SpotifyOAuth(
+        client_id=get_env_var('SPOTIFY_CLIENT_ID'),
+        client_secret=get_env_var('SPOTIFY_CLIENT_SECRET'),
+        redirect_uri=get_env_var('SPOTIFY_REDIRECT_URI'),
+        scope=scope,
+        username=get_env_var('SPOTIFY_USERNAME')
+    ))
+    return spotify_client
 
 def get_followed_artists(sp: Any) -> Set[str]:
     artists: Set[str] = set()
@@ -95,19 +83,39 @@ class Spinner:
             self._thread.join()
 
 
-spinner = Spinner("Fetching Spotify data")
-try:
-    spinner.start()
-    artists: Set[str] = get_followed_artists(sp)
-    albums: Set[str] = get_saved_albums_and_artists(sp, artists)
-finally:
-    spinner.stop()
+def main() -> None:
+    load_dotenv()
+    parser: argparse.ArgumentParser = argparse.ArgumentParser(description="Export Spotify artists to a file.")
+    parser.add_argument('--dryrun', action='store_true', help='Only count and print, do not write to file.')
+    parser.add_argument('--include-saved-albums', action='store_true', help='Also scan saved albums (requires user-library-read scope).')
+    parser.add_argument('--out', default=os.getenv('ARTISTS_FILE', 'artists.txt'), help='Output path for artist list (default: artists.txt)')
+    args: argparse.Namespace = parser.parse_args()
 
+    sp: Any = build_client(include_saved_albums=bool(args.include_saved_albums))
 
-if args.dryrun:
-    print(f"[DRYRUN] Found {len(artists)} unique artists and {len(albums)} unique albums.")
-else:
-    with open(ARTISTS_FILE, 'w', encoding='utf-8') as f:
+    spinner = Spinner("Fetching Spotify data")
+    try:
+        spinner.start()
+        artists: Set[str] = get_followed_artists(sp)
+        albums: Set[str] = set()
+        if args.include_saved_albums:
+            albums = get_saved_albums_and_artists(sp, artists)
+    finally:
+        spinner.stop()
+
+    if args.dryrun:
+        print(f"[DRYRUN] Found {len(artists)} unique artists" + (f" and {len(albums)} unique albums" if args.include_saved_albums else "") + ".")
+        return
+
+    out_path: str = args.out
+    with open(out_path, 'w', encoding='utf-8') as f:
         for artist in sorted(artists):
             f.write(f"{artist}\n")
-    print(f"Wrote {len(artists)} artists and {len(albums)} albums to {ARTISTS_FILE}")
+    if args.include_saved_albums:
+        print(f"Wrote {len(artists)} artists (and scanned {len(albums)} albums) to {out_path}")
+    else:
+        print(f"Wrote {len(artists)} artists to {out_path}")
+
+
+if __name__ == "__main__":
+    main()
