@@ -56,6 +56,22 @@ def get_saved_albums_and_artists(sp: Any, artists: Set[str]) -> Set[str]:
             break
     return albums
 
+def get_playlist_artists(sp: Any, playlist_id: str) -> Set[str]:
+    artists: Set[str] = set()
+    results: Optional[Dict[str, Any]] = sp.playlist_tracks(playlist_id)
+    while results:
+        for item in results['items']:
+            track = item['track']
+            if not track:  # skip local/deleted/unavailable tracks
+                continue
+            for artist in track['artists']:
+                artists.add(artist['name'])
+        if results['next']:
+            results = sp.next(results)
+        else:
+            break
+    return artists
+
 class Spinner:
     def __init__(self, message: str = "Processing") -> None:
         self._stop = threading.Event()
@@ -88,6 +104,7 @@ def main() -> None:
     parser: argparse.ArgumentParser = argparse.ArgumentParser(description="Export Spotify artists to a file.")
     parser.add_argument('--dryrun', action='store_true', help='Only count and print, do not write to file.')
     parser.add_argument('--include-saved-albums', action='store_true', help='Also scan saved albums (requires user-library-read scope).')
+    parser.add_argument('--playlists', nargs='+', required=False, help='One or more Spotify playlist IDs or URLs to include.')
     parser.add_argument('--out', default=os.getenv('ARTISTS_FILE', 'artists.txt'), help='Output path for artist list (default: artists.txt)')
     args: argparse.Namespace = parser.parse_args()
 
@@ -96,7 +113,15 @@ def main() -> None:
     spinner = Spinner("Fetching Spotify data")
     try:
         spinner.start()
-        artists: Set[str] = get_followed_artists(sp)
+        followed: Set[str] = get_followed_artists(sp)
+
+        playlist_artists: Set[str] = set()
+        if args.playlists:
+            for playlist_id in args.playlists:
+                playlist_artists |= get_playlist_artists(sp, playlist_id)
+
+        artists: Set[str] = followed.union(playlist_artists)
+
         albums: Set[str] = set()
         if args.include_saved_albums:
             albums = get_saved_albums_and_artists(sp, artists)
